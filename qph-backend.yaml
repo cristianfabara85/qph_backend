@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-docker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-docker
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5 
+  template:
+    metadata:
+      labels:
+        app: backend-docker
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: backend-docker
+        image: myakscluster07.azurecr.io/proyectos_spring-docker:v1
+        ports:
+        - containerPort: 8088
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-docker
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8080
+  selector:
+    app: backend-docker
